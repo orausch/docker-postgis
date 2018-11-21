@@ -26,6 +26,7 @@ ADD env-data.sh /env-data.sh
 ADD setup.sh /setup.sh
 RUN chmod +x /setup.sh
 RUN /setup.sh
+RUN apt-get update; apt-get -y install osm2pgsql gdal-bin
 
 # We will run any commands in this when the container starts
 ADD docker-entrypoint.sh /docker-entrypoint.sh
@@ -36,7 +37,15 @@ ADD setup-replication.sh /
 ADD setup-ssl.sh /
 ADD setup-user.sh /
 ADD postgresql.conf /tmp/postgresql.conf
+ADD switzerland-latest.osm.pbf /map.osm.pbf
+ADD import.sh /import.sh
+ADD load.sh /load.sh
+ADD dbdump dbdump
+RUN chmod +x /import.sh
+RUN chmod +x /load.sh
 RUN chmod +x /docker-entrypoint.sh
+ENV PGPASSWORD docker
+ENV PGPASS docker
 
 # Optimise postgresql
 RUN echo "kernel.shmmax=543252480" >> /etc/sysctl.conf
