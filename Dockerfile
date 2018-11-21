@@ -39,10 +39,8 @@ ADD setup-user.sh /
 ADD postgresql.conf /tmp/postgresql.conf
 ADD switzerland-latest.osm.pbf /map.osm.pbf
 ADD import.sh /import.sh
-ADD load.sh /load.sh
-ADD dbdump dbdump
+ADD accidents.csv /accidents.csv
 RUN chmod +x /import.sh
-RUN chmod +x /load.sh
 RUN chmod +x /docker-entrypoint.sh
 ENV PGPASSWORD docker
 ENV PGPASS docker

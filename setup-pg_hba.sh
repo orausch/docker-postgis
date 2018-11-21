@@ -47,4 +47,5 @@ if [ -z "$REPLICATE_FROM" ]; then
 	echo "host replication all 0.0.0.0/0 $authMethod" >> $ROOT_CONF/pg_hba.conf
 fi
 
+sed "s/local\s*all\s*postgres\s*peer/local all postgres trust/" -i /etc/postgresql/10/main/pg_hba.conf
 sed "s/local\s*all\s*all\s*peer/local all all trust/" -i /etc/postgresql/10/main/pg_hba.conf
