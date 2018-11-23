@@ -26,7 +26,8 @@ ADD env-data.sh /env-data.sh
 ADD setup.sh /setup.sh
 RUN chmod +x /setup.sh
 RUN /setup.sh
-RUN apt-get update; apt-get -y install osm2pgsql gdal-bin
+RUN apt-get update; apt-get -y install osm2pgsql gdal-bin python-gdal python-pygresql python-pip
+RUN pip install tqdm
 
 # We will run any commands in this when the container starts
 ADD docker-entrypoint.sh /docker-entrypoint.sh
@@ -37,16 +38,20 @@ ADD setup-replication.sh /
 ADD setup-ssl.sh /
 ADD setup-user.sh /
 ADD postgresql.conf /tmp/postgresql.conf
-ADD switzerland-latest.osm.pbf /map.osm.pbf
-ADD import.sh /import.sh
-ADD accidents.csv /accidents.csv
-RUN chmod +x /import.sh
 RUN chmod +x /docker-entrypoint.sh
 ENV PGPASSWORD docker
 ENV PGPASS docker
-
-# Optimise postgresql
 RUN echo "kernel.shmmax=543252480" >> /etc/sysctl.conf
 RUN echo "kernel.shmall=2097152" >> /etc/sysctl.conf
+
+# ADD DATA
+ADD switzerland-latest.osm.pbf /map.osm.pbf
+
+ADD render.py /render.py
+
+ADD import.sh /import.sh
+RUN chmod +x /import.sh
+
+# Optimise postgresql
 
 ENTRYPOINT /docker-entrypoint.sh
