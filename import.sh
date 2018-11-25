@@ -2,7 +2,7 @@
 alias SQL="psql --dbname gis -U docker -c"
 
 echo " --- IMPORTING ACCIDENTS DATA ---"
-SQL "CREATE TABLE accidents (id serial NOT NULL, jahr int4,kanton varchar,monat int4,tag int4,stunde int4,x int4, y int4, accident int4 CONSTRAINT accidents_pkey PRIMARY KEY (id));"
+SQL "CREATE TABLE accidents (id serial NOT NULL, jahr int4,kanton varchar,monat int4,tag int4,stunde int4,x int4, y int4, accident int4, CONSTRAINT accidents_pkey PRIMARY KEY (id));"
 SQL "COPY accidents(jahr, kanton, monat, tag, stunde, x, y, accident) FROM '/var/lib/postgresql/data/accidents.csv' DELIMITER ',' CSV HEADER;"
 SQL "SELECT addgeometrycolumn('accidents', 'way', 21781, 'POINT', 2);"
 SQL "UPDATE accidents SET way=ST_SETSRID(ST_MAKEPOINT(x, y), 21781);"
@@ -13,15 +13,17 @@ SQL "VACUUM analyse accidents;"
 
 echo " --- DONE IMPORTING ACCIDENTS DATA --- "
 
-echo " --- IMPORTING WEATHER DATA ---"
-SQL "CREATE TABLE station_basel (id serial NOT NULL, year int4,month int4,date int4 ,hour int4 ,temp float,perc float,snow float,cloud float,sun float,wind float,wind_gust float CONSTRAINT station_basel_pkey PRIMARY KEY (id));"
-SQL "COPY station_basel(year,month,date,hour,temp,perc,snow,cloud,sun,wind,wind_gust) FROM '/var/lib/postgresql/data/stations/basel.csv' DELIMITER ',' CSV HEADER;"
-SQL "SELECT addgeometrycolumn('accidents', 'way', 21781, 'POINT', 2);"
-SQL "UPDATE accidents SET way=ST_SETSRID(ST_MAKEPOINT(x, y), 21781);"
-SQL "CREATE INDEX accidents_gix ON accidents USING GIST (way);"
-SQL "VACUUM analyse accidents;"
-SQL "CLUSTER accidents using accidents_gix;"
-SQL "VACUUM analyse accidents;"
+#echo " --- IMPORTING WEATHER DATA ---"
+#SQL "CREATE TABLE station_basel (id serial NOT NULL, year int4,month int4,date int4 ,hour int4 ,temp float,perc float,snow float,cloud float,sun float,wind float,wind_gust float CONSTRAINT station_basel_pkey PRIMARY KEY (id));"
+#SQL "COPY station_basel(year,month,date,hour,temp,perc,snow,cloud,sun,wind,wind_gust) FROM '/var/lib/postgresql/data/stations/basel.csv' DELIMITER ',' CSV HEADER;"
+#
+#SQL "CREATE TABLE stations ();"
+#SQL "SELECT addgeometrycolumn('accidents', 'way', 21781, 'POINT', 2);"
+#SQL "UPDATE accidents SET way=ST_SETSRID(ST_MAKEPOINT(x, y), 21781);"
+#SQL "CREATE INDEX accidents_gix ON accidents USING GIST (way);"
+#SQL "VACUUM analyse accidents;"
+#SQL "CLUSTER accidents using accidents_gix;"
+#SQL "VACUUM analyse accidents;"
 
 echo " --- DONE IMPORTING ACCIDENTS DATA --- "
 
