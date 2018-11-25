@@ -37,7 +37,7 @@ echo " --- IMPORTING OSM DATA --- "
 osm2pgsql -d gis -C 2000 -U docker map.osm.pbf --hstore	-E 21781
 # we could remove hte following lines if we filterd out what we want using a
 # osm2pgsql config file, but this is easier (but slower)
-SQL "DELETE FROM planet_osm_line where highway is null or highway ='steps' or highway='pedestrian' or highway='path' or highway = 'pedestrian';"
+SQL "DELETE FROM planet_osm_line where highway is null or highway ='steps' or highway='pedestrian' or highway='path' or highway = 'pedestrian', or highway='footway' or highway='service';"
 SQL "DELETE FROM planet_osm_point where highway != 'traffic_signals' and highway != 'traffic_signals;crossing' and highway!='crossing;traffic_signals' and highway !='junction';"
 SQL "DELETE FROM planet_osm_polygon where building is NULL;"
 SQL "VACUUM analyse planet_osm_line;"
