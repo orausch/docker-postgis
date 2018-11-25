@@ -2,8 +2,8 @@
 alias SQL="psql --dbname gis -U docker -c"
 
 echo " --- IMPORTING ACCIDENTS DATA ---"
-SQL "CREATE TABLE accidents (id serial NOT NULL, jahr int4,kanton varchar,monat int4,tag int4,stunde int4,x int4, y int4, CONSTRAINT accidents_pkey PRIMARY KEY (id));"
-SQL "COPY accidents(jahr, kanton, monat, tag, stunde, x, y) FROM '/var/lib/postgresql/data/accidents.csv' DELIMITER ',' CSV HEADER;"
+SQL "CREATE TABLE accidents (id serial NOT NULL, jahr int4,kanton varchar,monat int4,tag int4,stunde int4,x int4, y int4, accident int4 CONSTRAINT accidents_pkey PRIMARY KEY (id));"
+SQL "COPY accidents(jahr, kanton, monat, tag, stunde, x, y, accident) FROM '/var/lib/postgresql/data/accidents.csv' DELIMITER ',' CSV HEADER;"
 SQL "SELECT addgeometrycolumn('accidents', 'way', 21781, 'POINT', 2);"
 SQL "UPDATE accidents SET way=ST_SETSRID(ST_MAKEPOINT(x, y), 21781);"
 SQL "CREATE INDEX accidents_gix ON accidents USING GIST (way);"
