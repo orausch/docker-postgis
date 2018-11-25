@@ -13,6 +13,18 @@ SQL "VACUUM analyse accidents;"
 
 echo " --- DONE IMPORTING ACCIDENTS DATA --- "
 
+echo " --- IMPORTING WEATHER DATA ---"
+SQL "CREATE TABLE station_basel (id serial NOT NULL, year int4,month int4,date int4 ,hour int4 ,temp float,perc float,snow float,cloud float,sun float,wind float,wind_gust float CONSTRAINT station_basel_pkey PRIMARY KEY (id));"
+SQL "COPY station_basel(year,month,date,hour,temp,perc,snow,cloud,sun,wind,wind_gust) FROM '/var/lib/postgresql/data/stations/basel.csv' DELIMITER ',' CSV HEADER;"
+SQL "SELECT addgeometrycolumn('accidents', 'way', 21781, 'POINT', 2);"
+SQL "UPDATE accidents SET way=ST_SETSRID(ST_MAKEPOINT(x, y), 21781);"
+SQL "CREATE INDEX accidents_gix ON accidents USING GIST (way);"
+SQL "VACUUM analyse accidents;"
+SQL "CLUSTER accidents using accidents_gix;"
+SQL "VACUUM analyse accidents;"
+
+echo " --- DONE IMPORTING ACCIDENTS DATA --- "
+
 echo " --- IMPORTING BELASTUNG DATA --- "
 shp2pgsql -s 21781 -I /var/lib/postgresql/data/belastung.shp | psql -U docker -d gis -q
 SQL "ALTER TABLE belastung ADD COLUMN l_speed int4;"
