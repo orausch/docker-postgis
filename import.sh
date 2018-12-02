@@ -13,19 +13,15 @@ SQL "VACUUM analyse accidents;"
 
 echo " --- DONE IMPORTING ACCIDENTS DATA --- "
 
-#echo " --- IMPORTING WEATHER DATA ---"
-#SQL "CREATE TABLE station_basel (id serial NOT NULL, year int4,month int4,date int4 ,hour int4 ,temp float,perc float,snow float,cloud float,sun float,wind float,wind_gust float CONSTRAINT station_basel_pkey PRIMARY KEY (id));"
-#SQL "COPY station_basel(year,month,date,hour,temp,perc,snow,cloud,sun,wind,wind_gust) FROM '/var/lib/postgresql/data/stations/basel.csv' DELIMITER ',' CSV HEADER;"
-#
-#SQL "CREATE TABLE stations ();"
-#SQL "SELECT addgeometrycolumn('accidents', 'way', 21781, 'POINT', 2);"
-#SQL "UPDATE accidents SET way=ST_SETSRID(ST_MAKEPOINT(x, y), 21781);"
-#SQL "CREATE INDEX accidents_gix ON accidents USING GIST (way);"
-#SQL "VACUUM analyse accidents;"
-#SQL "CLUSTER accidents using accidents_gix;"
-#SQL "VACUUM analyse accidents;"
+echo " --- IMPORTING WEATHER DATA ---"
+SQL "CREATE TABLE station_basel (id serial NOT NULL, year int4,month int4,date int4 ,hour int4 ,temp float,perc float,snow float,cloud float,sun float,wind float,wind_gust float, CONSTRAINT station_basel_pkey PRIMARY KEY (id));"
+SQL "COPY station_basel(year,month,date,hour,temp,perc,snow,cloud,sun,wind,wind_gust) FROM '/var/lib/postgresql/data/stations/basel.csv' DELIMITER ',' CSV HEADER;"
 
-echo " --- DONE IMPORTING ACCIDENTS DATA --- "
+SQL "CREATE TABLE stations (id serial NOT NULL, name varchar, x float, y float);"
+SQL "COPY stations(name, x, y) FROM '/var/lib/postgresql/data/stations.csv' DELIMITER ',' CSV HEADER;"
+SQL "SELECT addgeometrycolumn('stations', 'way', 21781, 'POINT', 2);"
+SQL "UPDATE stations SET way=ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT(y, x), 4326), 21781);"
+echo " --- DONE IMPORTING WEATHER DATA --- "
 
 echo " --- IMPORTING BELASTUNG DATA --- "
 shp2pgsql -s 21781 -I /var/lib/postgresql/data/belastung.shp | psql -U docker -d gis -q
@@ -51,7 +47,7 @@ echo " --- IMPORTING OSM DATA --- "
 osm2pgsql -d gis -C 2000 -U docker map.osm.pbf --hstore	-E 21781
 # we could remove hte following lines if we filterd out what we want using a
 # osm2pgsql config file, but this is easier (but slower)
-SQL "DELETE FROM planet_osm_line where highway is null or highway ='steps' or highway='pedestrian' or highway='path' or highway = 'pedestrian', or highway='footway' or highway='service';"
+SQL "DELETE FROM planet_osm_line where highway is null or highway ='steps' or highway='pedestrian' or highway='path' or highway = 'pedestrian' or highway='footway' or highway='service';"
 SQL "DELETE FROM planet_osm_point where highway != 'traffic_signals' and highway != 'traffic_signals;crossing' and highway!='crossing;traffic_signals' and highway !='junction';"
 SQL "DELETE FROM planet_osm_polygon where building is NULL;"
 SQL "VACUUM analyse planet_osm_line;"
